@@ -58,36 +58,37 @@ public class KnapsackTest {
         GeneticAlgorithmProblem gap = new GenericGeneticAlgorithmProblem(ef, odd, mf, cf);
         ProbabilisticOptimizationProblem pop = new GenericProbabilisticOptimizationProblem(ef, odd, df);
 
+        for (int i = 0 ; i < 3; i++) {
+            for (int baseIteration : new int[]{1000, 10000, 50000, 100000, 150000, 200000}) {
 
-        for (int baseIteration : new int[] { 1000, 10000, 50000, 100000, 150000, 200000 }) {
+                long startTime = System.currentTimeMillis();
+                RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);
+                FixedIterationTrainer fit = new FixedIterationTrainer(rhc, baseIteration);
+                fit.train();
+                long endTime = System.currentTimeMillis();
+                System.out.println("RHC\t" + baseIteration + "\t" + (endTime - startTime) + "\t" + ef.value(rhc.getOptimal()));
 
-            long startTime = System.currentTimeMillis();
-            RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);
-            FixedIterationTrainer fit = new FixedIterationTrainer(rhc, baseIteration);
-            fit.train();
-            long endTime = System.currentTimeMillis();
-            System.out.println("RHC\t" + baseIteration + "\t" +  (endTime - startTime) + "\t" +  ef.value(rhc.getOptimal()));
+                startTime = System.currentTimeMillis();
+                SimulatedAnnealing sa = new SimulatedAnnealing(100, .95, hcp);
+                fit = new FixedIterationTrainer(sa, baseIteration);
+                fit.train();
+                endTime = System.currentTimeMillis();
+                System.out.println("SA\t" + baseIteration + "\t" + (endTime - startTime) + "\t" + ef.value(sa.getOptimal()));
 
-            startTime = System.currentTimeMillis();
-            SimulatedAnnealing sa = new SimulatedAnnealing(100, .95, hcp);
-            fit = new FixedIterationTrainer(sa, baseIteration);
-            fit.train();
-            endTime = System.currentTimeMillis();
-            System.out.println("SA\t" + baseIteration + "\t" + (endTime - startTime) + "\t" + ef.value(sa.getOptimal()));
+                startTime = System.currentTimeMillis();
+                StandardGeneticAlgorithm ga = new StandardGeneticAlgorithm(100, 75, 12, gap);
+                fit = new FixedIterationTrainer(ga, baseIteration / 100);
+                fit.train();
+                endTime = System.currentTimeMillis();
+                System.out.println("GA\t" + baseIteration + "\t" + (endTime - startTime) + "\t" + ef.value(ga.getOptimal()));
 
-            startTime = System.currentTimeMillis();
-            StandardGeneticAlgorithm ga = new StandardGeneticAlgorithm(100, 75, 12, gap);
-            fit = new FixedIterationTrainer(ga, baseIteration/100);
-            fit.train();
-            endTime = System.currentTimeMillis();
-            System.out.println("GA\t" + baseIteration + "\t" + (endTime - startTime) + "\t" + ef.value(ga.getOptimal()));
-
-            startTime = System.currentTimeMillis();
-            MIMIC mimic = new MIMIC(100, 50, pop);
-            fit = new FixedIterationTrainer(mimic,  baseIteration/100);
-            fit.train();
-            endTime = System.currentTimeMillis();
-            System.out.println("MIMIC\t" + baseIteration + "\t" + (endTime - startTime) + "\t" + ef.value(mimic.getOptimal()));
+                startTime = System.currentTimeMillis();
+                MIMIC mimic = new MIMIC(100, 50, pop);
+                fit = new FixedIterationTrainer(mimic, baseIteration / 100);
+                fit.train();
+                endTime = System.currentTimeMillis();
+                System.out.println("MIMIC\t" + baseIteration + "\t" + (endTime - startTime) + "\t" + ef.value(mimic.getOptimal()));
+            }
         }
     }
 
